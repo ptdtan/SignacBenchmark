@@ -16,12 +16,11 @@ run_Harmony <- function(cells.1, cells.2) {
 
     list(session_info = session_info,
          timing = timing,
-         tt = tt,
-         df = data.frame(pval = tt$P.Value,
-                         padj = tt$adj.P.Val,
-                         row.names = rownames(tt)))
+         df = data.frame(pval = res$`P.adjusted.value`,
+                         padj = res$`P.adjusted.value`,
+                         row.names = res$Gene.Name))
   },error = function(e) {
-    "limmatrend results could not be calculated"
+    "Harmony results could not be calculated"
     list(session_info = session_info)
   })
 }
