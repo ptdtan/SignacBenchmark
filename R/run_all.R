@@ -122,7 +122,7 @@ get_Precision_onedata <- function(res, truth)
   })
 }
 
-run_FDR <- function(file, prefix)
+run_FDR <- function(file, prefix, type = "null")
 {
     obj = readRDS(file)
     fail = T
@@ -130,6 +130,7 @@ run_FDR <- function(file, prefix)
       timming <- system.time({
         res = run_all(obj, type = "null")
         s = get_FDR_onedata(res)
+        saveRDS(s, file.path(type, paste0(prefix, ".stat.RDS")))
         fail = F
       })
       print(timming)
