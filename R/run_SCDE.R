@@ -10,10 +10,10 @@ run_SCDE <- function(cells.1, cells.2) {
   tryCatch({
     timing <- system.time({
     intcount <- apply(mat, 2, function(x) {storage.mode(x) <- 'integer'; x})
-    o.ifm <- scde.error.models(counts = intcount, groups = clusters, n.cores = 1,
+    o.ifm <- scde.error.models(counts = intcount, groups = clusters, n.cores = 56,
                                threshold.segmentation = TRUE,
                                save.crossfit.plots = FALSE, save.model.plots = FALSE,
-                               verbose = 0, min.size.entries = min(2000, nrow(mat) - 1))
+                               verbose = 0, min.size.entries = min(300, nrow(mat) - 1))
     valid.cells <- o.ifm$corr.a > 0
     table(valid.cells)
     o.ifm <- o.ifm[valid.cells, ]
@@ -27,9 +27,6 @@ run_SCDE <- function(cells.1, cells.2) {
     p.values <- 2*pnorm(abs(ediff$Z), lower.tail = FALSE)
     p.values.adj <- 2*pnorm(abs(ediff$cZ), lower.tail = FALSE)
   })
-
-  hist(p.values, 50)
-  hist(p.values.adj, 50)
 
   list(session_info = session_info,
        timing = timing,

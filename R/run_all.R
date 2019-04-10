@@ -6,12 +6,18 @@ run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1)
   source("R/run_MAST.R")
   source("R/run_limma.R")
   source("R/run_ttest.R")
+  source("R/run_metagenomeseq.R")
+  source("R/run_ROTS.R")
+  source("R/run_SCDE.R")
+  source("R/run_Wilcoxon.R")
+
   mat.raw <<- obj[["mat"]]
   set.seed(seed)
   cells.1 <- obj[[type]][[1]]
   cells.2 <- obj[[type]][[2]]
 
   n.samples.1 <- sample(seq(25, 50))
+
   if(sample){
     cells.1 <- sample(cells.1, min(length(cells.1), n.samples.1), replace = F)
     cells.2 <- sample(cells.2, min(length(cells.2), 1000), replace = F)
@@ -21,8 +27,8 @@ run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1)
   message("cells.2 ", length(cells.2))
 
   stopifnot(length(intersect(cells.1, cells.2)) == 0)
-  res <- list(res_Huy = run_Huy(cells.1, cells.2),
-              res_SeuratBimod = run_Seurat(cells.1, cells.2, method = "bimod"),
+
+  res <- list(
               res_SeuratT = run_Seurat(cells.1, cells.2, method = "t"),
               res_SeuratPoisson = run_Seurat(cells.1, cells.2, method = "poisson"),
               res_Seuratnegbinom = run_Seurat(cells.1, cells.2, method = "negbinom"),
@@ -32,7 +38,12 @@ run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1)
               res_ttest = run_ttest(cells.1, cells.2),
               res_MASTcpmDetRate = run_MASTcpmDetRate(cells.1, cells.2),
               res_limmatrend = run_limmatrend(cells.1, cells.2),
-              run_Wilcoxon = run_Wilcoxon(cells.1, cells.2)
+              run_Wilcoxon = run_Wilcoxon(cells.1, cells.2),
+              run_metagenomeSeq = run_metagenomeSeq(cells.1, cells.2),
+              run_edgeRLRTrobust = run_edgeRLRTrobust(cells.1, cells.2),
+              run_MASTcpm = run_MASTcpm(cells.1, cells.2),
+              run_ROTScpm = run_ROTScpm(cells.1, cells.2),
+              run_voomlimma = run_voomlimma(cells.1, cells.2)
               )
   return(res)
 }
@@ -112,7 +123,7 @@ get_Precision_onedata <- function(res, truth)
   })
 }
 
-run_one_study <- function(file, type, prefix)
+run_FDR <- function(file, type, prefix)
 {
     obj = readRDS(file)
     tryCatch({
@@ -142,3 +153,4 @@ draw_stats <- function(type = "null", output_folder = "figures")
   stats_m <- melt(stats)
   readr::write_tsv(stats_m, file.path(output_folder, paste0(type, "_stats.tsv") ))
 }
+

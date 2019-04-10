@@ -8,27 +8,20 @@ run_ROTScpm <- function(cells.1, cells.2) {
   mat <- mat.raw[, c(cells.1, cells.2)]
   clusters <- c(rep("A", length(cells.1)), rep("B", length(cells.2)))
 
-  timing <- system.time({
-    grp <- clusters
-    dge <- DGEList(counts = mat)
-    dge <- edgeR::calcNormFactors(dge)
-    cpms <- cpm(dge)
-    rots <- ROTS(data = cpms, groups = grp, B = 1000, K = 1000, log = FALSE, seed = 123)
+  tryCatch({
+      timing <- system.time({
+      rots <- ROTS(data = mat, groups = as.numeric(as.factor(clusters)), B = 100, K = 500, log = FALSE, seed = 123)
+    })
+
+    list(session_info = session_info,
+         timing = timing,
+         res = rots,
+         df = data.frame(pval = rots$pvalue,
+                         padj = rots$pvalue,
+                         row.names = rownames(rots$data)))
+  },  error = function(e) {
+    "ROTS results could not be calculated"
+    list(session_info = session_info,
+         error = e)
   })
-
-  hist(rots$pvalue, 50)
-  hist(rots$FDR, 50)
-  hist(rots$logfc, 50)
-  print(rots$R)
-  print(rots$Z)
-  print(rots$k)
-  print(rots$a1)
-  print(rots$a2)
-
-  list(session_info = session_info,
-       timing = timing,
-       res = rots,
-       df = data.frame(pval = rots$pvalue,
-                       padj = rots$pvalue,
-                       row.names = rownames(rots$data)))
 }

@@ -3,14 +3,13 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
 suppressPackageStartupMessages(library(scDD))
 
-process_pbmc4k <- function()
+process_pbmc4k <- function(root.dir, prefix, cluster = c(1,2,3))
 {
   master_dir <- "data.1/PBMC4k"
   mat.sp <- NoraSC::Read10XData(file.path(master_dir, "main"), type = "hdf5", return.raw = T)
   mat.raw <- as(mat.sp, "matrix")
   graph <- jsonlite::fromJSON(file.path(master_dir, "main/cluster_result.json"))
   clusters <- graph$kmeans$clusters[3, ]
-  cluster <- c(1,2,3)
 
   for(i in cluster){
     message("Cluster", i)
@@ -24,7 +23,7 @@ process_pbmc4k <- function()
     PBMC4k <- list(real = list(real.data.1, real.data.2),
                      null = list(null.data.1, null.data.2),
                      mat = assay(mat.raw))
-    data.file <- file.path(paste0("data.1/PBMC4k_null_", i, "_data.rds"))
+    data.file <- file.path(root.dir, paste0(prefix, "_null_", i, ".rds"))
     saveRDS(PBMC4k, data.file)
   }
 }
@@ -231,4 +230,39 @@ install_packages <- function()
 {
   packages <- c("edgeR", "MultiAssayExperiment", "scDD", "genefilter")
   BiocInstaller::biocLite(packages)
+}
+
+
+process_one_UMI <- function(file.obj, root.dir, prefix, group, n.instances = 3)
+{
+  obj <- readRDS(file.obj)
+  obj <- BiocGenerics:::updateObject(obj)
+  groups <- colData(obj)[[group]]
+  col.idx <- which(groups == unique(groups)[1])
+  mat <- assay(obj)[, col.idx]
+  generate_instance(mat, prefix, root.dir, n.instances = n.instances)
+}
+
+generate_instance <- function(mat, prefix, dir, n.instances = 3) {
+  dir.create(dir)
+  samples.sizes <- c()
+  for (i in seq(0, n.instances - 1)) {
+    samples.sizes <- c(samples.sizes, as.integer(ncol(mat)/(i + 2)))
+  }
+
+  for (s in samples.sizes) {
+      message(dir, " ", prefix, " ", s)
+      select.idx <- sample(seq(1, ncol(mat)), s, replace = F)
+      obj <- list(real = NULL,
+                  null = list(select.idx, setdiff(seq(1, ncol(mat)), (select.idx))),
+                  mat = mat)
+      data.file <- file.path(dir, paste0(prefix, "_null_", s, ".rds"))
+      saveRDS(obj, data.file)
+  }
+}
+
+process_Conquer_UMI <- function()
+{
+  process_one_UMI("data/Conquer_UMI/10XMonoCytoT.rds", "data/Conquer_UMI/", "10XMonoCytoT", "group", 6)
+  process_one_UMI("data/Conquer_UMI/UsoskinGSE59739.rds", "data/Conquer_UMI/", "UsoskinGSE59739", "Level.1", 3)
 }
