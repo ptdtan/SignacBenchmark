@@ -43,13 +43,12 @@ run_MASTcpm <- function(cells.1, cells.2) {
 
   tryCatch({
     timing <- system.time({
-
       grp <- clusters
       dge <- DGEList(counts = mat)
       dge <- edgeR::calcNormFactors(dge)
-      cpms <- cpm(dge)
-      sca <- FromMatrix(exprsArray = log2(cpms + 1),
-                        cData = data.frame(wellKey = names(grp),
+      cpms <- edgeR::cpm(dge)
+      sca <- MAST::FromMatrix(exprsArray = log2(cpms + 1),
+                        cData = data.frame(wellKey = colnames(mat),
                                            grp = grp))
       zlmdata <- zlm.SingleCellAssay(~grp, sca)
       mast <- lrTest(zlmdata, "grp")

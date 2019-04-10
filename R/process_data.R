@@ -2,26 +2,46 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
 suppressPackageStartupMessages(library(scDD))
 
-process_pbmc4k <- function(root.dir, prefix, cluster = c(1,2,3))
+process_null_pbmc4k <- function(root.dir, prefix, cluster = c(1,2,3,4,5))
 {
   master_dir <- "data.1/PBMC4k"
-  mat.sp <- NoraSC::Read10XData(file.path(master_dir, "main"), type = "hdf5", return.raw = T)
+  mat.sp <- NoraSC::Read10XData(file.path(master_dir, "main"), type = "hdf5", return.raw = F)
   mat.raw <- as(mat.sp, "matrix")
   graph <- jsonlite::fromJSON(file.path(master_dir, "main/cluster_result.json"))
-  clusters <- graph$kmeans$clusters[3, ]
+  clusters <- graph$graph$clusters
 
   for(i in cluster){
     message("Cluster", i)
-    null.data <- which(clusters == i)
-    null.data.1 <- sample(x = null.data, min(100, length(null.data)), replace = F)
-    d <- setdiff(null.data, null.data.1)
-    null.data.2 <- sample(x = d ,
-                          min(100, length(d)), replace = F)
-    real.data.1 <- which(clusters == i)
-    real.data.2 <- which(clusters != i)
-    PBMC4k <- list(real = list(real.data.1, real.data.2),
-                     null = list(null.data.1, null.data.2),
-                     mat = assay(mat.raw))
+    col.idx <- sample(which(clusters == i), 200, replace = F)
+    mat_ <- mat.sp[, col.idx]
+
+    null.data.1 <- seq(1, 100)
+    null.data.2 <- seq(101, 200)
+    PBMC4k <- list(real = list(),
+                   null = list(null.data.1, null.data.2),
+                   mat = as(mat_, "matrix"))
+    data.file <- file.path(root.dir, paste0(prefix, "_null_", i, ".rds"))
+    saveRDS(PBMC4k, data.file)
+  }
+}
+
+process_null_macosko <- function(root.dir, prefix, cluster = c(1,2,3,4,5))
+{
+  master_dir <- "data.1/macosko2015/"
+  mat.sp <- NoraSC::Read10XData(file.path(master_dir, "main"), type = "hdf5", return.raw = F)
+  graph <- jsonlite::fromJSON(file.path(master_dir, "main/cluster_result.json"))
+  clusters <- graph$graph$clusters
+
+  for(i in cluster){
+    message("Cluster", i)
+    col.idx <- sample(which(clusters == i), 200, replace = F)
+    mat_ <- mat.sp[, col.idx]
+
+    null.data.1 <- seq(1, 100)
+    null.data.2 <- seq(101, 200)
+    PBMC4k <- list(real = list(),
+                   null = list(null.data.1, null.data.2),
+                   mat = as(mat_, "matrix"))
     data.file <- file.path(root.dir, paste0(prefix, "_null_", i, ".rds"))
     saveRDS(PBMC4k, data.file)
   }

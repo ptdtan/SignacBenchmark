@@ -10,7 +10,7 @@ run_limmatrend <- function(cells.1, cells.2) {
   tryCatch({
       timing <- system.time({
       dge <- DGEList(mat, group = clusters)
-      dge <- calcNormFactors(dge)
+      dge <- edgeR::calcNormFactors(dge)
       design <- model.matrix(~clusters)
       y <- new("EList")
       y$E <- edgeR::cpm(dge, log = TRUE, prior.count = 3)
@@ -41,18 +41,13 @@ run_voomlimma <- function(cells.1, cells.2) {
   tryCatch({
       timing <- system.time({
       dge <- DGEList(mat, group = clusters)
-      dge <- calcNormFactors(dge)
+      dge <- edgeR::calcNormFactors(dge)
       design <- model.matrix(~clusters)
       vm <- voom(dge, design = design, plot = TRUE)
       fit <- lmFit(vm, design = design)
       fit <- eBayes(fit)
       tt <- topTable(fit, n = Inf, adjust.method = "BH")
     })
-
-    hist(tt$P.Value, 50)
-    hist(tt$adj.P.Val, 50)
-    limma::plotMDS(dge, col = as.numeric(as.factor(clusters)), pch = 19)
-    plotMD(fit)
 
     list(session_info = session_info,
          timing = timing,
