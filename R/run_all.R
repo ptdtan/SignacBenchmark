@@ -123,19 +123,23 @@ get_Precision_onedata <- function(res, truth)
   })
 }
 
-run_FDR <- function(file, type, prefix)
+run_FDR <- function(file, prefix)
 {
     obj = readRDS(file)
+    fail = T
     tryCatch({
       timming <- system.time({
-        res = run_all(obj, type = type)
+        res = run_all(obj, type = "null")
         s = get_FDR_onedata(res)
+        fail = F
       })
       print(timming)
     }, error = function(e) {
-      message("Run failed for", file)
+      message("Run failed for", file, e)
       return(NULL)
     })
+    if (fail)
+      return(NULL)
     res <- cbind(s)
     colnames(res) <- prefix
     res <- data.frame(res[, 1], row.names = prefix)
