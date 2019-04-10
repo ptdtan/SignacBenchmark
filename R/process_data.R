@@ -1,4 +1,3 @@
-suppressPackageStartupMessages(library(NoraSC))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
 suppressPackageStartupMessages(library(scDD))
