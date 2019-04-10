@@ -40,11 +40,9 @@ run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1)
               res_limmatrend = run_limmatrend(cells.1, cells.2),
               run_Wilcoxon = run_Wilcoxon(cells.1, cells.2),
               run_metagenomeSeq = run_metagenomeSeq(cells.1, cells.2),
-              run_edgeRLRTrobust = run_edgeRLRTrobust(cells.1, cells.2),
               run_MASTcpm = run_MASTcpm(cells.1, cells.2),
               run_ROTScpm = run_ROTScpm(cells.1, cells.2),
-              run_voomlimma = run_voomlimma(cells.1, cells.2),
-              run_scDD = run_scDD(cells.1, cells.2)
+              run_voomlimma = run_voomlimma(cells.1, cells.2)
               )
   return(res)
 }
