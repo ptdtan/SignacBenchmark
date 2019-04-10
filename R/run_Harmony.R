@@ -18,7 +18,7 @@ run_Harmony <- function(cells.1, cells.2) {
          timing = timing,
          df = data.frame(pval = res$`P.adjusted.value`,
                          padj = res$`P.adjusted.value`,
-                         row.names = res$Gene.Name))
+                         row.names = res$`Gene.Name`))
   },error = function(e) {
     "Harmony results could not be calculated"
     list(session_info = session_info)

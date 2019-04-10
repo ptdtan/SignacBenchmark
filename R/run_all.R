@@ -1,4 +1,4 @@
-run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1)
+run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1, res = list())
 {
   source("R/run_Huy.R")
   source("R/run_Seurat.R")
@@ -28,22 +28,27 @@ run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1)
 
   stopifnot(length(intersect(cells.1, cells.2)) == 0)
 
-  res <- list(
-              res_SeuratT = run_Seurat(cells.1, cells.2, method = "t"),
-              res_SeuratPoisson = run_Seurat(cells.1, cells.2, method = "poisson"),
-              res_Seuratnegbinom = run_Seurat(cells.1, cells.2, method = "negbinom"),
-              res_edgeRLRT = run_edgeRLRT(cells.1, cells.2),
-              res_edgeRQLFDetRate = run_edgeRQLFDetRate(cells.1, cells.2),
-              res_edgeRQLF = run_edgeRQLF(cells.1, cells.2),
-              res_ttest = run_ttest(cells.1, cells.2),
-              res_MASTcpmDetRate = run_MASTcpmDetRate(cells.1, cells.2),
-              res_limmatrend = run_limmatrend(cells.1, cells.2),
-              run_Wilcoxon = run_Wilcoxon(cells.1, cells.2),
-              run_metagenomeSeq = run_metagenomeSeq(cells.1, cells.2),
-              run_MASTcpm = run_MASTcpm(cells.1, cells.2),
-              run_ROTScpm = run_ROTScpm(cells.1, cells.2),
-              run_voomlimma = run_voomlimma(cells.1, cells.2)
-              )
+  methods <- list(res_SeuratT = function(...) run_Seurat(..., method = "t"),
+                  res_SeuratPoisson = function(...) run_Seurat(..., method = "poisson"),
+                  res_Seuratnegbinom = function(...) run_Seurat(..., method = "negbinom"),
+                  res_edgeRLRT = run_edgeRLRT,
+                  res_edgeRQLFDetRate = run_edgeRQLFDetRate,
+                  res_edgeRQLF = run_edgeRQLF,
+                  res_ttest = run_ttest,
+                  res_MASTcpmDetRate = run_MASTcpmDetRate,
+                  res_limmatrend = run_limmatrend,
+                  run_Wilcoxon = run_Wilcoxon,
+                  run_metagenomeSeq = run_metagenomeSeq,
+                  run_MASTcpm = run_MASTcpm,
+                  run_ROTScpm = run_ROTScpm,
+                  run_voomlimma = run_voomlimma,
+                  run_Harmony = run_Harmony
+  )
+
+  for (k in names(methods)) {
+    if (is.null(res[[k]]))
+      res[[k]] <- methods[[k]](cells.1, cells.2)
+  }
   return(res)
 }
 
@@ -124,13 +129,19 @@ get_Precision_onedata <- function(res, truth)
 
 run_FDR <- function(file, prefix, type = "null")
 {
+    res.file <- file.path(type, paste0(prefix, ".stat.RDS"))
     obj = readRDS(file)
     fail = T
     tryCatch({
       timming <- system.time({
-        res = run_all(obj, type = "null")
+        if (file.exists(res.file)) {
+          res.old = readRDS(res.file)
+        } else{
+          res.old = list()
+        }
+        res = run_all(obj, type = "null", res = res.old)
         s = get_FDR_onedata(res)
-        saveRDS(s, file.path(type, paste0(prefix, ".stat.RDS")))
+        saveRDS(res, res.file)
         fail = F
       })
       print(timming)
