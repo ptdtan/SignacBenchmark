@@ -157,15 +157,45 @@ run_FDR <- function(file, prefix, type = "null")
     write.table(res, file.path(type, paste0(prefix, ".stats")))
 }
 
-draw_stats <- function(type = "null", output_folder = "figures")
+draw_stats <- function(type = "null", output_folder = "figures",
+                       title = "UMI", file.name = "FPR_UMI.svg")
 {
   require(ggplot2)
   require(reshape2)
+  require(dplyr)
   files <- list.files(type)
   dfs <- lapply(file.path(type, files), read.table)
   rows <- lapply(dfs, unlist)
   stats <- do.call(rbind, rows)
   stats_m <- melt(stats)
+  #stats_m[,3] <- stats_m[,3] + exp(-5)
+  colnames(stats_m) <- c("x", "method", "FPR")
+  new_methods <- factor(unlist(sapply(as.character(stats_m$method), function(m) {strsplit(m, "_")[[1]][2]})))
+  stats_m$method <- factor(new_methods, levels = unique(new_methods))
+  dftmp <- stats_m  %>%
+    dplyr::filter(!is.na(FPR)) %>%
+    dplyr::mutate(method = forcats::fct_reorder(method, FPR,
+                                                fun = median, na.rm = FALSE,
+                                                .desc = TRUE))
+  cols = unique(dftmp$method)
+
+  gglayers <- list(
+    geom_hline(yintercept = 0.05),
+    geom_boxplot(outlier.size = -1),
+    geom_point(position = position_jitter(width = 0.2), size = 0.5),
+    theme_bw(),
+    xlab(""),
+    ylab("FPR (fraction of genes with p < 0.05)"),
+    scale_color_manual(values = cols),
+    scale_y_sqrt(breaks = c(0.05, 0.5, 1), limits = c(0, 0.07)),
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 12),
+          axis.text.y = element_text(size = 12),
+          axis.title.y = element_text(size = 13),
+          legend.position = "none")
+  )
+  g <- ggplot(dftmp, aes(x = method, y = FPR, color = method)) + gglayers + ggtitle(title)
+
+  ggsave(g, filename = paste0("figures/", file.name), width = 10, height = 5, units = "in")
   readr::write_tsv(stats_m, file.path(output_folder, paste0(type, "_stats.tsv") ))
 }
 
