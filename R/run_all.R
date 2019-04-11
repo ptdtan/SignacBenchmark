@@ -28,7 +28,8 @@ run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1, r
 
   stopifnot(length(intersect(cells.1, cells.2)) == 0)
 
-  methods <- list(res_SeuratT = function(...) run_Seurat(..., method = "t"),
+  methods <- list(
+                  res_SeuratT = function(...) run_Seurat(..., method = "t"),
                   res_SeuratPoisson = function(...) run_Seurat(..., method = "poisson"),
                   res_Seuratnegbinom = function(...) run_Seurat(..., method = "negbinom"),
                   res_edgeRLRT = run_edgeRLRT,
@@ -96,15 +97,22 @@ get_FDR_onedata <- function(res)
   })
 }
 
-run_TPR_real <- function(data_f, data.truth, prefix, sample = F, n_samples = 100, seed =1)
+run_TPR_real <- function(data_f, data.truth, prefix, sample = F, n_samples = 100, seed = 1)
 {
+  res.file <- file.path("real", paste(prefix, "res.rds", sep = "_"))
   truth <- readRDS(data.truth)
   obj = readRDS(data_f)
   s <- NULL
   res <- NULL
   tryCatch({
     timming <- system.time({
-      res = run_all(obj, type = "real", sample = sample, n_samples = n_samples, seed = seed)
+      if (file.exists(res.file)) {
+        res.old = readRDS(res.file)
+      } else{
+        res.old = list()
+      }
+      res = run_all(obj, type = "real", sample = sample, n_samples = n_samples, seed = seed,
+                    res = res.old)
       s = get_Precision_onedata(res, truth)
     })
     print(timming)
@@ -112,8 +120,9 @@ run_TPR_real <- function(data_f, data.truth, prefix, sample = F, n_samples = 100
     paste("Error", e)
   })
 
-  saveRDS(s, file = paste(data_f, prefix, "stats.rds", sep = "_"))
-  saveRDS(res, file = paste(data_f, prefix, "res.rds", sep = "_"))
+  dir.create("real")
+  saveRDS(s, file = file.path("real", paste(prefix, "stats.rds", sep = "_")))
+  saveRDS(res, file = file.path("real", paste(prefix, "res.rds", sep = "_")))
   return(s)
 }
 
@@ -123,7 +132,9 @@ get_Precision_onedata <- function(res, truth)
   lapply(res, function(obj){
     genes <- rownames(obj$df)
     inter.genes <- length(which(genes[obj$df$padj <= 0.05] %in% truth_genes))
-    res <- c(inter.genes/length(which(obj$df$padj <= 0.05)), inter.genes, length(which(obj$df$padj <= 0.05)))
+    res <- c(inter.genes/length(which(obj$df$padj <= 0.05)),
+             inter.genes,
+             length(which(obj$df$padj <= 0.05)))
   })
 }
 
