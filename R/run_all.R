@@ -1,4 +1,5 @@
-run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1, res = list())
+run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1, res = list(),
+                    filtering = TRUE)
 {
   source("R/run_Huy.R")
   source("R/run_Seurat.R")
@@ -28,6 +29,12 @@ run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1, r
 
   stopifnot(length(intersect(cells.1, cells.2)) == 0)
 
+  ### Filtering
+  if (filtering) {
+    message("Filtering")
+    rowsum.cell12 <- DelayedMatrixStats::rowSums2(mat.raw[, c(cells.1, cells.2)] > 0)
+    mat.raw <- mat.raw[which(rowsum.cell12 > 0.25 * (length(c(cells.1, cells.2)))), ]
+  }
   methods <- list(
                   res_SeuratT = function(...) run_Seurat(..., method = "t"),
                   res_SeuratPoisson = function(...) run_Seurat(..., method = "poisson"),
@@ -139,7 +146,7 @@ get_Precision_onedata <- function(res, truth)
   })
 }
 
-run_FDR <- function(file, prefix, out.dir, type = "null")
+run_FDR <- function(file, prefix, out.dir, type = "null", filtering = TRUE)
 {
     dir.create(out.dir)
     res.file <- file.path(out.dir, paste0(prefix, ".stat.RDS"))
@@ -152,7 +159,7 @@ run_FDR <- function(file, prefix, out.dir, type = "null")
         } else{
           res.old = list()
         }
-        res = run_all(obj, type = "null", res = res.old)
+        res = run_all(obj, type = "null", res = res.old, filtering = filtering)
         s = get_FDR_onedata(res)
         saveRDS(res, res.file)
         fail = F
