@@ -11,14 +11,17 @@ run_Harmony <- function(cells.1, cells.2) {
 
   tryCatch({
     timing <- system.time({
-    res <- Signac::HarmonyMarker(mat, as.numeric(as.factor(clusters)))
+      dge <- DGEList(counts = mat)
+      dge <- edgeR::calcNormFactors(dge)
+      cpms <- edgeR::cpm(dge)
+      res <- Signac::HarmonyMarker(as(cpms, "sparseMatrix"), as.numeric(as.factor(clusters)))
     })
 
-    list(session_info = session_info,
-         timing = timing,
-         df = data.frame(pval = res$`P.adjusted.value`,
-                         padj = res$`P.adjusted.value`,
-                         row.names = res$`Gene.Name`))
+  list(session_info = session_info,
+       timing = timing,
+       df = data.frame(pval = res$`P.adjusted.value`,
+                       padj = res$`P.adjusted.value`,
+                       row.names = res$`Gene.Name`))
   },error = function(e) {
     "Harmony results could not be calculated"
     list(session_info = session_info)

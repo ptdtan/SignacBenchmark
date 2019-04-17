@@ -262,6 +262,28 @@ process_one_UMI <- function(file.obj, root.dir, prefix, group, n.instances = 3)
   generate_instance(mat, prefix, root.dir, n.instances = n.instances)
 }
 
+process_one_Fullength <- function(obj, meta.obj, root.dir, prefix, group, n.instances = 2)
+{
+  groups <- meta.obj[[group]]
+  for (g in unique(groups)) {
+    col.idx <- which(groups == unique(groups)[1])
+    mat <- assay(obj)[, col.idx]
+    generate_instance(mat, paste(prefix, g, sep="-"), root.dir, n.instances = n.instances)
+  }
+}
+
+prepare_one_Fullength <- function(obj.file, meta.file, prefix = "a")
+{
+  obj <- readRDS(obj.file)
+  gse <- GEOquery::getGEO(filename = meta.file)
+
+  pdata <- Biobase::phenoData(gse)@data
+  pdata <- pdata[, grep(":ch1", colnames(pdata))]
+  sapply(colnames(pdata), function(col)table(pdata[[col]]))
+  saveRDS(obj[[1]], paste0(prefix, ".rds"))
+  saveRDS(pdata, paste0(prefix, "-metadata.rds"))
+}
+
 generate_instance <- function(mat, prefix, dir, n.instances = 3) {
   dir.create(dir)
   samples.sizes <- c()
@@ -275,6 +297,7 @@ generate_instance <- function(mat, prefix, dir, n.instances = 3) {
       obj <- list(real = NULL,
                   null = list(select.idx, setdiff(seq(1, ncol(mat)), (select.idx))),
                   mat = mat)
+      prefix <- gsub(" ", "_", prefix)
       data.file <- file.path(dir, paste0(prefix, "_null_", s, ".rds"))
       saveRDS(obj, data.file)
   }
