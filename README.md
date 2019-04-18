@@ -1,6 +1,6 @@
-# HuyMarkerBenchmark
+# SignacBenchmark
 
-The goal of HuyMarkerBenchmark is to validate the performance and accuracy of many marker genes finding methods like Seurat negbinom, edgeR-based, MAST, and Signac's 
+The goal of SignacBenchmark is to validate the performance and accuracy of many marker genes finding methods like Seurat negbinom, edgeR-based, MAST, and Signac's 
 
 ## Installation
 
