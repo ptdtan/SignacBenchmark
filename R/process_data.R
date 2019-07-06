@@ -206,13 +206,15 @@ simulate <-  function(scDatEx, numSamples=500,
   return(SD)
 }
 
-process_simulate <- function()
+process_simulate <- function(output.folder, ndata = 3, nDE=500,
+                             nDP=500, nDM=500, nDB=500,
+                             nEE=9000, nEP=9000)
 {
   library(scDD)
   data(scDatEx)
   for(i in seq(1, 3)){
-    file.data <- file.path(paste0("data.2/sim_", i, "_data.rds"))
-    file.truth <- file.path(paste0("data.2/sim_", i, "_truth.rds"))
+    file.data <- file.path(output.folder, paste0("sim_", i, "_data.rds"))
+    file.truth <- file.path(output.folder, paste0("sim_", i, "_truth.rds"))
     message(paste("Doing", file.data))
     SD <- simulate(scDatEx)
     real.data <- colData(SD)[["condition"]]
