@@ -201,6 +201,9 @@ plot_null_FPR <- function(input_folder = "null", output_folder = "figures",
                                                 .desc = TRUE))
   cols = unique(dftmp$method)
 
+  colors_str <- '#a65353, #4c0a00, #cc3600, #ffa280, #d9b1a3, #4d3e39, #995426, #402200, #f29d3d, #735c00, #f2ce3d, #59502d, #ccff00, #aab386, #739926, #39592d, #00f200, #00e600, #0d3312, #b6f2ce, #00ffaa, #269973, #435952, #006b73, #39dae6, #0d2b33, #3399cc, #7c98a6, #0081f2, #00294d, #0044ff, #203980, #bfd0ff, #00138c, #737899, #000033, #9979f2, #502d59, #302633, #e200f2, #f2b6ee, #b32d98, #ff0088, #73003d, #33001b, #806071, #d9003a, #ffbfc8'
+  colors <- strsplit(colors_str, ', ')[[1]]
+
   gglayers <- list(
     geom_hline(yintercept = 0.05),
     geom_boxplot(outlier.size = 1),
@@ -208,7 +211,7 @@ plot_null_FPR <- function(input_folder = "null", output_folder = "figures",
     theme_bw(),
     xlab(""),
     ylab(""),
-    scale_fill_manual(values = colors <- c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000')),
+    scale_fill_manual(values = colors ),
     scale_y_sqrt(limits = c(0, 1)),
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 9),
           axis.text.y = element_text(size = 9),
@@ -416,4 +419,3 @@ data_summary <- function(data, varname, groupnames){
   data_sum <- rename(data_sum, c("mean" = varname))
   return(data_sum)
 }
-
