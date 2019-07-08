@@ -326,9 +326,11 @@ fdr_one_data <- function(d, method, filt = '') {
 	  stop(paste("File", file.p, "doesn't exists, something went wrong!"))
   data <- readRDS(file.p)
   pval <- as.numeric(sapply(data, function(d){
+    if (!"df" %in% names(d))
+      return(NA)
     col <- if (!"padj" %in% colnames(d)) "pval" else "padj"
     s <- length(which(d$df[[col]] <= 0.05))
-    return(s/sum(!is.na(d$df[[col]])))}))
+    return(s/(sum(!is.na(d$df[[col]])) + 0.001))}))
   return(pval)
 }
 
@@ -362,7 +364,7 @@ process_one_set_data <- function(methods_str, datasets, file_name = "umi_non_fil
   saveRDS(pval_data_list, file = file_name)
 }
 
-
+methods_str <- "Venice,BPSC,D3E,DESeq2betapFALSE,DESeq2census,DESeq2nofilt,DESeq2,DEsingle,edgeRLRTcensus,edgeRLRTdeconv,edgeRLRTrobust,edgeRLRT,edgeRQLFDetRate,edgeRQLF,limmatrend,MASTcpmDetRate,MASTcpm,MASTtpmDetRate,MASTtpm,metagenomeSeq,monoclecensus,monoclecount,monocle,NODESnofilt,NODES,ROTScpm,ROTStpm,ROTSvoom,SAMseq,scDD,SCDE,SeuratBimodIsExpr2,SeuratBimodnofilt,SeuratBimod,SeuratTobit,ttest,voomlimma,Wilcoxon"
 process_one_set_data(methods_str,
                      c("UsoskinGSE59739mock", "GSE62270-GPL17021mock", "10XMonoCytoTmock"),
                      "umi_non_filtering.RDS",
@@ -495,6 +497,6 @@ plot_batch_null_data <- function()
   print(gg)
   dev.off()
 
-  #ggsave(gg, width = 10, height = 7, filename = "FPR_NULL.svg", units = "in")
+  ggsave(gg, width = 12, height = 7, filename = "Null_figure1.svg")
 }
 
