@@ -369,27 +369,27 @@ process_one_set_data <- function(methods_str, datasets, file_name = "umi_non_fil
 }
 
 
-methods_str <- "Venice,BPSC,D3E,DESeq2betapFALSE,DESeq2census,DESeq2nofilt,DESeq2,DEsingle,edgeRLRTcensus,edgeRLRTdeconv,edgeRLRTrobust,edgeRLRT,edgeRQLFDetRate,edgeRQLF,limmatrend,MASTcpmDetRate,MASTcpm,MASTtpmDetRate,MASTtpm,metagenomeSeq,monoclecensus,monoclecount,monocle,NODESnofilt,NODES,ROTScpm,ROTStpm,ROTSvoom,SAMseq,scDD,SCDE,SeuratBimodIsExpr2,SeuratBimodnofilt,SeuratBimod,SeuratTobit,ttest,voomlimma,Wilcoxon"
-#methods_str <-  "Venice"
-process_one_set_data(methods_str,
-                     c("UsoskinGSE59739mock", "GSE62270-GPL17021mock", "10XMonoCytoTmock"),
-                     "umi_non_filtering.RDS",
-                     "")
-
-process_one_set_data(methods_str,
-                     c("UsoskinGSE59739mock", "GSE62270-GPL17021mock", "10XMonoCytoTmock"),
-                     "umi_filtering_TPM_1_25p.RDS",
-                     "TPM_1_25p")
-
-process_one_set_data(methods_str,
-                    c("GSE45719mock", "GSE48968-GPL13112mock", "GSE60749-GPL13112mock", "GSE74596mock", "EMTAB2805mock"),
-                    "full-length_non_filtering.RDS",
-                    "")
-
-process_one_set_data(methods_str,
-                     c("GSE45719mock", "GSE48968-GPL13112mock", "GSE60749-GPL13112mock", "GSE74596mock", "EMTAB2805mock"),
-                     "full-length_filtering_TPM_1_25p.RDS",
-                     "")
+# methods_str <- "Venice,BPSC,D3E,DESeq2betapFALSE,DESeq2census,DESeq2nofilt,DESeq2,DEsingle,edgeRLRTcensus,edgeRLRTdeconv,edgeRLRTrobust,edgeRLRT,edgeRQLFDetRate,edgeRQLF,limmatrend,MASTcpmDetRate,MASTcpm,MASTtpmDetRate,MASTtpm,metagenomeSeq,monoclecensus,monoclecount,monocle,NODESnofilt,NODES,ROTScpm,ROTStpm,ROTSvoom,SAMseq,scDD,SCDE,SeuratBimodIsExpr2,SeuratBimodnofilt,SeuratBimod,SeuratTobit,ttest,voomlimma,Wilcoxon"
+# #methods_str <-  "Venice"
+# process_one_set_data(methods_str,
+#                      c("UsoskinGSE59739mock", "GSE62270-GPL17021mock", "10XMonoCytoTmock"),
+#                      "umi_non_filtering.RDS",
+#                      "")
+#
+# process_one_set_data(methods_str,
+#                      c("UsoskinGSE59739mock", "GSE62270-GPL17021mock", "10XMonoCytoTmock"),
+#                      "umi_filtering_TPM_1_25p.RDS",
+#                      "TPM_1_25p")
+#
+# process_one_set_data(methods_str,
+#                     c("GSE45719mock", "GSE48968-GPL13112mock", "GSE60749-GPL13112mock", "GSE74596mock", "EMTAB2805mock"),
+#                     "full-length_non_filtering.RDS",
+#                     "")
+#
+# process_one_set_data(methods_str,
+#                      c("GSE45719mock", "GSE48968-GPL13112mock", "GSE60749-GPL13112mock", "GSE74596mock", "EMTAB2805mock"),
+#                      "full-length_filtering_TPM_1_25p.RDS",
+#                      "")
 
 #' Plot function for result from one RDS file
 #'
