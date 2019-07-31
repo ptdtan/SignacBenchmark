@@ -1,16 +1,16 @@
-run_all <- function(obj, type = "real", sample = F, n_samples = 100, seed = 1, res = list(),
+run_all <- function(obj, type = "real", sample = F, seed = 1, res = list(),
                     filtering = TRUE)
 {
-  source("R/run_Huy.R")
-  source("R/run_Seurat.R")
-  source("R/run_edgeR.R")
-  source("R/run_MAST.R")
-  source("R/run_limma.R")
-  source("R/run_ttest.R")
-  source("R/run_metagenomeseq.R")
-  source("R/run_ROTS.R")
-  source("R/run_SCDE.R")
-  source("R/run_Wilcoxon.R")
+  # source("R/run_Huy.R")
+  # source("R/run_Seurat.R")
+  # source("R/run_edgeR.R")
+  # source("R/run_MAST.R")
+  # source("R/run_limma.R")
+  # source("R/run_ttest.R")
+  # source("R/run_metagenomeseq.R")
+  # source("R/run_ROTS.R")
+  # source("R/run_SCDE.R")
+  # source("R/run_Wilcoxon.R")
 
   mat.raw <<- obj[["mat"]]
   set.seed(seed)
@@ -105,7 +105,7 @@ get_FDR_onedata <- function(res)
 }
 
 run_TPR_real <- function(data_f, data.truth, prefix, sample = F,
-                         n_samples = 100, seed = 1, filtering = TRUE)
+                          seed = 1, filtering = TRUE)
 {
   res.file <- file.path("real", paste(prefix, "res.rds", sep = "_"))
   truth <- readRDS(data.truth)
@@ -119,7 +119,7 @@ run_TPR_real <- function(data_f, data.truth, prefix, sample = F,
       } else{
         res.old = list()
       }
-      res = run_all(obj, type = "real", sample = sample, n_samples = n_samples, seed = seed,
+      res = run_all(obj, type = "real", sample = sample, seed = seed,
                     res = res.old, filtering = )
       s = get_Precision_onedata(res, truth)
     })

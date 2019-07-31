@@ -196,9 +196,10 @@ process_GSE78779 <- function()
 #' @examples
 simulate <-  function(scDatEx, numSamples=500,
                       nDE=500, nDP=500, nDM=500, nDB=500,
-                      nEE=9000, nEP=9000,
+                      nEE=4000, nEP=4000,
                       seed = 816)
 {
+  require(scDD)
   SD <- simulateSet(scDatEx, numSamples=numSamples, nDE=nDE, nDP=nDP, nDM=nDM,
                    nDB=nDB, nEE=nEE, nEP=nEP, sd.range=c(2,2), modeFC=c(2,3,4),
                    plots=FALSE,
@@ -206,28 +207,30 @@ simulate <-  function(scDatEx, numSamples=500,
   return(SD)
 }
 
-process_simulate <- function(output.folder, ndata = 3, nDE=500,
-                             nDP=500, nDM=500, nDB=500,
-                             nEE=9000, nEP=9000)
-{
-  library(scDD)
-  data(scDatEx)
-  for(i in seq(1, 3)){
-    file.data <- file.path(output.folder, paste0("sim_", i, "_data.rds"))
-    file.truth <- file.path(output.folder, paste0("sim_", i, "_truth.rds"))
-    message(paste("Doing", file.data))
-    SD <- simulate(scDatEx)
-    real.data <- colData(SD)[["condition"]]
-    real.data.1 <- which(real.data == 1)
-    real.data.2 <- which(real.data != 1)
-    sim <- list(real = list(real.data.1, real.data.2),
-                null = NULL,
-                mat = assay(SD))
-    saveRDS(sim, file = file.data)
-    truth <- list(total = list(low = rownames(sim$mat)[grep("^D", rownames(sim$mat))]))
-    saveRDS(truth, file = file.truth)
+  process_simulate <- function(output.folder, ndata = 3, nDE=500,
+                               nDP=500, nDM=500, nDB=500,
+                               nEE=9000, nEP=9000)
+  {
+    library(scDD)
+    data(scDatEx)
+    suppressPackageStartupMessages(library(SingleCellExperiment))
+    suppressPackageStartupMessages(library(MultiAssayExperiment))
+    for(i in seq(1, ndata)){
+      file.data <- file.path(output.folder, paste0("sim_", i, "_data.rds"))
+      file.truth <- file.path(output.folder, paste0("sim_", i, "_truth.rds"))
+      message(paste("Doing", file.data))
+      SD <- simulate(scDatEx)
+      real.data <- colData(SD)[["condition"]]
+      real.data.1 <- which(real.data == 1)
+      real.data.2 <- which(real.data != 1)
+      sim <- list(real = list(real.data.1, real.data.2),
+                  null = NULL,
+                  mat = assay(SD))
+      saveRDS(sim, file = file.data)
+      truth <- list(total = list(low = rownames(sim$mat)[grep("^D", rownames(sim$mat))]))
+      saveRDS(truth, file = file.truth)
+    }
   }
-}
 
 prepare_all <- function()
 {
@@ -328,7 +331,8 @@ fdr_one_data <- function(d, method, filt = '') {
   pval <- as.numeric(sapply(data, function(d){
     if (!"df" %in% names(d))
       return(NA)
-    col <- if (!"padj" %in% colnames(d)) "pval" else "padj"
+    #col <- if (!"padj" %in% colnames(d)) "pval" else "padj"
+    col <- "pval"
     s <- length(which(d$df[[col]] <= 0.05))
     return(s/(sum(!is.na(d$df[[col]])) + 0.001))}))
   return(pval)
@@ -364,7 +368,9 @@ process_one_set_data <- function(methods_str, datasets, file_name = "umi_non_fil
   saveRDS(pval_data_list, file = file_name)
 }
 
+
 methods_str <- "Venice,BPSC,D3E,DESeq2betapFALSE,DESeq2census,DESeq2nofilt,DESeq2,DEsingle,edgeRLRTcensus,edgeRLRTdeconv,edgeRLRTrobust,edgeRLRT,edgeRQLFDetRate,edgeRQLF,limmatrend,MASTcpmDetRate,MASTcpm,MASTtpmDetRate,MASTtpm,metagenomeSeq,monoclecensus,monoclecount,monocle,NODESnofilt,NODES,ROTScpm,ROTStpm,ROTSvoom,SAMseq,scDD,SCDE,SeuratBimodIsExpr2,SeuratBimodnofilt,SeuratBimod,SeuratTobit,ttest,voomlimma,Wilcoxon"
+#methods_str <-  "Venice"
 process_one_set_data(methods_str,
                      c("UsoskinGSE59739mock", "GSE62270-GPL17021mock", "10XMonoCytoTmock"),
                      "umi_non_filtering.RDS",
@@ -424,19 +430,20 @@ plot_null_FPR_from_rds <- function(rds.path, output_folder = "figures",
 
 plot_batch_null_data <- function()
 {
-  g_u_non_filter <- plot_null_FPR_from_rds(rds.path = "null_results/umi_non_filtering.RDS",
+  colors <- "#a65353,#4c0a00,#cc3600,#ffa280,#d9b1a3,#4d3e39,#995426,#402200,#f29d3d,#735c00,#f2ce3d,#59502d,#ccff00,#aab386,#739926,#39592d,#00f200,#00e600,#0d3312,#b6f2ce,#00ffaa,#269973,#435952,#006b73,#39dae6,#0d2b33,#3399cc,#7c98a6,#0081f2,#00294d,#0044ff,#203980,#bfd0ff,#00138c,#737899,#000033,#9979f2,#502d59,#302633,#e200f2,#f2b6ee,#b32d98,#ff0088,#73003d,#33001b,#806071,#d9003a,#ffbfc8"
+  g_u_non_filter <- plot_null_FPR_from_rds(rds.path = "umi_non_filtering.RDS",
                                            dataset = "UMI",
                                            filt = "non-filtering",
                                            return.data = T) #+theme(axis.text.y = element_text(size = 9))
-  g_f_non_filter <- plot_null_FPR_from_rds(rds.path = "null_results/full-length_non_filtering.RDS",
+  g_f_non_filter <- plot_null_FPR_from_rds(rds.path = "full-length_non_filtering.RDS",
                                            dataset = "full-length",
                                            filt = "non-filtering",
                                            return.data = T)  #+theme(axis.text.y = element_text(size = 9))
-  g_u_filter <- plot_null_FPR_from_rds(rds.path = "null_results/umi_filtering_TPM_1_25p.RDS",
+  g_u_filter <- plot_null_FPR_from_rds(rds.path = "umi_filtering_TPM_1_25p.RDS",
                                        dataset = "UMI",
                                        filt = "filtering",
                                        return.data = T) #+theme(axis.text.y = element_text(size = 9))
-  g_f_filter <- plot_null_FPR_from_rds(rds.path = "null_results/full-length_filtering_TPM_1_25p.RDS",
+  g_f_filter <- plot_null_FPR_from_rds(rds.path = "full-length_filtering_TPM_1_25p.RDS",
                                        dataset  = "full-length",
                                        filt     = "filtering",
                                        return.data = T)  #+theme(axis.text.y = element_text(size = 9))
@@ -449,7 +456,7 @@ plot_batch_null_data <- function()
     theme_bw(),
     xlab(""),
     ylab("FPR (fraction of genes with p < 0.05)"),
-    scale_color_manual(values = colors ),
+    scale_color_manual(values = strsplit(colors, ",")[[1]] ),
     scale_y_sqrt(breaks = c(0.05, 0.5, 1), limits = c(0, 1.25)),
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 12),
           axis.text.y = element_text(size = 12),
@@ -497,6 +504,5 @@ plot_batch_null_data <- function()
   print(gg)
   dev.off()
 
-  ggsave(gg, width = 12, height = 7, filename = "Null_figure1.svg")
+  ggsave(gg, width = 12, height = 7, filename = "Null_figure1.png")
 }
-
