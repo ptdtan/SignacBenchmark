@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(Signac))
 suppressPackageStartupMessages(library(Matrix))
 
 run_Harmony <- function(cells.1, cells.2) {
-  message("Harmony")
+  message("Venice")
   session_info <- sessionInfo()
   mat <- mat.raw[, c(cells.1, cells.2)]
   clusters <- c(rep("A", length(cells.1)), rep("B", length(cells.2)))
@@ -14,16 +14,16 @@ run_Harmony <- function(cells.1, cells.2) {
       dge <- DGEList(counts = mat)
       dge <- edgeR::calcNormFactors(dge)
       cpms <- edgeR::cpm(dge)
-      res <- Signac::HarmonyMarker(as(cpms, "sparseMatrix"), as.numeric(as.factor(clusters)))
     })
 
+  res <- Signac::VeniceMarker(mat, as.numeric(as.factor(clusters)) - 1)
   list(session_info = session_info,
        timing = timing,
-       df = data.frame(pval = res$`P.adjusted.value`,
-                       padj = res$`P.adjusted.value`,
+       df = data.frame(pval = 10^res$`Log10.p.value`,
+                       padj = 10^res$`Log10.adjusted.p.value`,
                        row.names = res$`Gene.Name`))
   },error = function(e) {
-    "Harmony results could not be calculated"
+    "Venice results could not be calculated"
     list(session_info = session_info)
   })
 }
