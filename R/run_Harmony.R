@@ -1,7 +1,7 @@
 suppressPackageStartupMessages(library(Signac))
 suppressPackageStartupMessages(library(Matrix))
 
-run_Harmony <- function(cells.1, cells.2) {
+run_Venice <- function(cells.1, cells.2) {
   message("Venice")
   session_info <- sessionInfo()
   mat <- mat.raw[, c(cells.1, cells.2)]

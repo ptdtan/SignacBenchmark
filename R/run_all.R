@@ -51,7 +51,8 @@ run_all <- function(obj, type = "real", sample = F, seed = 1, res = list(),
                   run_MASTcpm = run_MASTcpm,
                   run_ROTScpm = run_ROTScpm,
                   run_voomlimma = run_voomlimma,
-                  run_Harmony = run_Harmony
+                  run_scDD = run_scDD,
+                  run_Venice = run_Venice
   )
 
   for (k in names(methods)) {

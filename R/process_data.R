@@ -207,7 +207,7 @@ simulate <-  function(scDatEx, numSamples=500,
   return(SD)
 }
 
-  process_simulate <- function(output.folder, ndata = 3, nDE=500,
+process_simulate <- function(output.folder, ndata = 1, nDE=500,
                                nDP=500, nDM=500, nDB=500,
                                nEE=9000, nEP=9000)
   {
