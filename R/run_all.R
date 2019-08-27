@@ -120,7 +120,7 @@ run_TPR_real <- function(data_f, data.truth, prefix, sample = F,
         res.old = list()
       }
       res = run_all(obj, type = "real", sample = sample, seed = seed,
-                    res = res.old, filtering = )
+                    res = res.old, filtering = FALSE)
       s = get_Precision_onedata(res, truth)
     })
     print(timming)
@@ -273,7 +273,7 @@ plot_ROC_AUC <- function(res_f, truth_f, prefix = "ES_MEF_ROC_cpm.svg", xlim = c
                      method = methods,
                      auc = auc) %>% arrange(-auc)
   data$method <- factor(data$method, levels = unique(data$method))
-  colors <- c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000')
+  colors <- c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#25d4e0')
   g <- ggplot(data,aes(one_m_spec, sens, color=method))+geom_line(size = 0.8, alpha = 0.7)+
     labs(title= "ROC curve",
          x = "False Positive Rate (1-Specificity)",
@@ -418,4 +418,41 @@ data_summary <- function(data, varname, groupnames){
                   varname)
   data_sum <- rename(data_sum, c("mean" = varname))
   return(data_sum)
+}
+
+plot_ROC <- function(df, name) {
+  df <- df[order(df$padj), ]
+  res <- as.numeric(grepl("^D", rownames(df)))
+  res_comp <- 1 - res
+  acc.p <- cumsum(res) / 2000
+  acc.n <- cumsum(res_comp) / 8000
+  name <- strsplit(name, "_")[[1]][2]
+  auc <- round(sum(diff(acc.n)*acc.p[seq(2, length(acc.p))]), 4)
+  name <- paste0(name, " AUC=", auc)
+  ret <- data.frame(acc.p = acc.p, acc.n = acc.n, name = name)
+}
+
+plot_ROC_multiple <- function(res) {
+  require(ggplot2)
+  ret_dfs <- lapply(seq(1, length(res)), function(i) plot_ROC(res[[i]]$df, names(res)[i]))
+  ret <- do.call(rbind, ret_dfs)
+  colors <- "#2f4f4f,#a52a2a,#006400,#bdb76b,#00008b,#ff0000,#ffa500,#ffff00,#00ff00,#00fa9a,#00ffff,#0000ff,#ff00ff,#1e90ff,#ee82ee,#ffc0cb"
+  colors <- strsplit(colors, ',')[[1]]
+  ggplot(ret, aes(acc.n, acc.p, color=name)) + geom_line(size = 0.8, alpha = 0.7)+
+    labs(title= "ROC curve",
+         x = "False Positive #",
+         y = "True Positive #") +
+    scale_color_manual(values = colors) +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank()) +
+    geom_abline(intercept = 0, slope = 1, linetype = 2) + #scale_y_continuous(limits = c(0.9, 1))
+    theme(legend.position = c(0.70, 0.22),
+          legend.background = element_blank(),
+          legend.box.background = element_blank(),
+          legend.key = element_blank(),
+          legend.title = element_blank(),
+          legend.text = element_text(size = 10))+
+    guides(col = guide_legend(ncol = 2))
+  #ggsave(g, filename = file.path("figures", prefix), width = 7, height = 5, units = "in", dpi = 120, device = "svg")
 }

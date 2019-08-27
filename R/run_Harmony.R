@@ -11,10 +11,7 @@ run_Harmony <- function(cells.1, cells.2) {
 
   tryCatch({
     timing <- system.time({
-      dge <- DGEList(counts = mat)
-      dge <- edgeR::calcNormFactors(dge)
-      cpms <- edgeR::cpm(dge)
-      res <- Signac::HarmonyMarker(as(cpms, "sparseMatrix"), as.numeric(as.factor(clusters)))
+      res <- Signac::VeniceMarker(as(mat, "sparseMatrix"), 2 - as.numeric(as.factor(clusters)))
     })
 
   list(session_info = session_info,
