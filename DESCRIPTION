@@ -8,10 +8,5 @@ Description: Benchmark marker genes finding algorithm
 License: GPLv3
 Encoding: UTF-8
 LazyData: true
-Depends:
-  scDD,
-  MAST,
-  edgeR,
-  Seurat
-Imports:
-  
+Remotes: bioc::3.5/ROTS, bioc::3.5/MAST, bioc::edgeR, bioc::3.5/Seurat, bioc::3.5/scde, bioc::3.5/limma, bioc::3.5/genefilter, bioc::3.5/SingleCellExperiment, bioc::3.5/scran, bioc::3.5/MultiAssayExperiment
+

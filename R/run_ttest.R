@@ -22,6 +22,6 @@ run_ttest <- function(cells.1, cells.2) {
   list(session_info = session_info,
        timing = timing,
        df = data.frame(pval = ttest_p,
-                       padj = ttest_p,
+                       padj = p.adjust(ttest_p),
                        row.names = names(ttest_p)))
 }

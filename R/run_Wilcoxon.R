@@ -23,7 +23,7 @@ run_Wilcoxon <- function(cells.1, cells.2) {
     list(session_info = session_info,
          timing = timing,
          df = data.frame(pval = wilcox_p,
-                         padj = wilcox_p,
+                         padj = p.adjust(wilcox_p),
                          row.names = names(wilcox_p)))
   }, error = function(e) {
     "Wilcoxon"
