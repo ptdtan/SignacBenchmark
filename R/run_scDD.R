@@ -8,15 +8,15 @@ run_scDD <- function(cells.1, cells.2) {
   session_info <- sessionInfo()
 
   mat <- mat.raw[, c(cells.1, cells.2)]
-  clusters <- c(rep("A", length(cells.1)), rep("B", length(cells.2)))
+  clusters <- c(rep(1, length(cells.1)), rep(2, length(cells.2)))
 
-  tryCatch({
+ # tryCatch({
     timing <- system.time({
-      sce <- SingleCellExperiment(assays=list(normcounts=mat),
+      sce <- SummarizedExperiment(assays=list(NormCounts=mat),
                                   colData=data.frame(condition = clusters))
       prior_param <- list(alpha = 0.01, mu0 = 0, s0 = 0.01, a0 = 0.01, b0 = 0.01)
       scd <- scDD(sce, prior_param = prior_param, testZeroes = FALSE,
-                  param = BiocParallel::MulticoreParam(workers = 2),
+                  param = BiocParallel::MulticoreParam(workers = 40),
                   condition = "condition", min.size = 3, min.nonzero = NULL)
       res <- results(scd)
     })
@@ -27,8 +27,9 @@ run_scDD <- function(cells.1, cells.2) {
          df = data.frame(pval = res$nonzero.pvalue,
                          padj = res$nonzero.pvalue.adj,
                          row.names = rownames(res)))
-  }, error = function(e) {
-    "scDD results could not be calculated"
-    list(session_info = session_info)
-  })
+  #}, error = function(e) {
+  #  "scDD results could not be calculated"
+  #  list(session_info = session_info, 
+  #	 error = e)
+  #})
 }

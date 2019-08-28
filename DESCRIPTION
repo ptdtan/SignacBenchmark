@@ -9,9 +9,23 @@ License: GPLv3
 Encoding: UTF-8
 LazyData: true
 Depends:
-  scDD,
-  MAST,
-  edgeR,
-  Seurat
-Imports:
-  
+	ROTS,
+	MAST,
+	DESeq2,
+	edgeR,
+	Seurat,
+	scde,
+	scran,
+	SingleCellExperiment,
+	MultiAssayExperiment
+Remotes: 
+	bioc::3.5/ROTS,
+	bioc::3.5/MAST,
+	bioc::3.5/DESeq2,
+	bioc::3.5/edgeR, 
+	bioc::3.5/Seurat, 
+	bioc::3.5/scde,
+	bioc::3.5/scran,
+	bioc::3.5/SingleCellExperiment, 
+	bioc::3.5/MultiAssayExperiment
+

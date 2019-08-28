@@ -4,11 +4,10 @@ run_Seurat <- function(cells.1, cells.2, method = "bimod") {
   tryCatch({
     timing <- system.time({
       umicount <- mat.raw
-
       umicount <- umicount[, c(cells.1, cells.2)]
       colnames(umicount) <- c(rep("cond", length(cells.1)), rep("noncond", length(cells.2)))
       colnames(umicount) <- paste0(colnames(umicount), "__", 1:ncol(umicount))
-      seur <- Seurat::CreateSeuratObject(raw.data = umicount, project = "scrnaseq", do.logNormalize = TRUE,
+      seur <- Seurat::CreateSeuratObject(counts = umicount, project = "scrnaseq", 
                                  names.field = 1, names.delim = "__")
 
       res <- Seurat::FindMarkers(seur, ident.1 = "cond",
