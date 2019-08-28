@@ -432,15 +432,17 @@ plot_ROC <- function(df, name) {
   auc <- round(sum(diff(acc.n)*acc.p[seq(2, length(acc.p))]), 4)
   name <- paste0(name, " AUC=", auc)
   ret <- data.frame(acc.p = acc.p, acc.n = acc.n, name = name)
+  message(unique(name))
+  return(ret)
 }
 
-plot_ROC_multiple <- function(res) {
+plot_ROC_multiple <- function(res, file.name = "ROC.svg") {
   require(ggplot2)
   ret_dfs <- lapply(seq(1, length(res)), function(i) plot_ROC(res[[i]]$df, names(res)[i]))
   ret <- do.call(rbind, ret_dfs)
-  colors <- "#2f4f4f,#a52a2a,#006400,#bdb76b,#00008b,#ff0000,#ffa500,#ffff00,#00ff00,#00fa9a,#00ffff,#0000ff,#ff00ff,#1e90ff,#ee82ee,#ffc0cb"
+  colors <- "#2f4f4f,#a52a2a,#006400,#bdb76b,#00008b,#ff0000,#ffa500,#ffff00,#00ff00,#00fa9a,#00ffff,#0000ff,#ff00ff,#1e90ff,#ee82ee,#ffc0cb,#ffc0cf"
   colors <- strsplit(colors, ',')[[1]]
-  ggplot(ret, aes(acc.n, acc.p, color=name)) + geom_line(size = 0.8, alpha = 0.7)+
+  g <- ggplot(ret, aes(acc.n, acc.p, color=name)) + geom_line(size = 0.8, alpha = 0.7)+
     labs(title= "ROC curve",
          x = "False Positive #",
          y = "True Positive #") +
@@ -456,5 +458,7 @@ plot_ROC_multiple <- function(res) {
           legend.title = element_blank(),
           legend.text = element_text(size = 10))+
     guides(col = guide_legend(ncol = 2))
-  #ggsave(g, filename = file.path("figures", prefix), width = 7, height = 5, units = "in", dpi = 120, device = "svg")
+  ggsave(g, filename = file.name, width = 7, height = 5, units = "in", dpi = 120, device = "svg")
+  return(g)
 }
+
